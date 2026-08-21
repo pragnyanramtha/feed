@@ -1,0 +1,7 @@
+# Recipients live in environment variables now.
+
+# DIGEST_WHATSAPP_TO=9198XXXXXXXX,9197XXXXXXXX
+# NOTICE_EMAIL_TO=cr@college.edu,office@college.edu
+
+# Official college WhatsApp groups cannot be scraped via the Cloud API.
+# Forward or send the messy notice to the business test number instead.
