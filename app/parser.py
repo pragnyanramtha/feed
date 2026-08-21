@@ -14,9 +14,10 @@ from app.models import ParsedNotice
 log = logging.getLogger(__name__)
 
 GREETING_RE = re.compile(
-    r"^\s*(good\s*(morning|night|afternoon|evening)|gm+|gn+|ok+|okay+|yes+|yeah+|lol+|haha+|thanks?|ty|👍|🙏|🌸|🌹)[\s!.]*$",
+    r"^(good\s*(morning|night|afternoon|evening)|gm+|gn+|ok+|okay+|yes+|yeah+|lol+|haha+|thanks?|ty)$",
     re.I,
 )
+_EMOJI = re.compile(r"[\U0001F300-\U0001FAFF]")
 DEADLINE_RE = re.compile(
     r"\b(last date|deadline|submit by|due|before|on or before|closes? on)\b",
     re.I,
@@ -74,13 +75,22 @@ Rules:
 """
 
 
+def _is_chatter(text: str) -> bool:
+    stripped = _EMOJI.sub("", text)
+    stripped = re.sub(r"[^\w\u0900-\u097f]+", " ", stripped)
+    stripped = re.sub(r"\s+", " ", stripped).strip()
+    if not stripped or len(stripped) < 8:
+        return True
+    return bool(GREETING_RE.match(stripped))
+
+
 def parse_inbound(text: str, *, today: date | None = None, settings: Settings | None = None) -> ParsedNotice:
     today = today or datetime.now(timezone.utc).date()
     settings = settings or get_settings()
     raw = (text or "").strip()
     fp = fingerprint(raw)
 
-    if not raw or GREETING_RE.match(raw) or len(raw) < 8:
+    if not raw or _is_chatter(raw):
         return ParsedNotice(
             is_notice=False,
             title="Not a notice",
@@ -128,7 +138,13 @@ def _heuristic(text: str, today: date, fp: str) -> ParsedNotice:
         urgency = "Medium"
 
     title = _title_from_text(text)
-    needs_human = category == "Unknown" or (is_notice and not deadline and DEADLINE_RE.search(text) is not None)
+    if not is_notice:
+        category = "Ignore"
+        needs_human = False
+    else:
+        needs_human = category == "Unknown" or (
+            not deadline and DEADLINE_RE.search(text) is not None
+        )
     draft = text.strip() if is_notice else ""
     why = "Rule-based parse. " + (
         f"Deadline {deadline}." if deadline else "No date found."
@@ -143,7 +159,7 @@ def _heuristic(text: str, today: date, fp: str) -> ParsedNotice:
         draft=draft[:1500],
         why=why,
         confidence=0.55 if is_notice else 0.4,
-        needs_human=needs_human or (is_notice and category == "Unknown"),
+        needs_human=needs_human,
         fingerprint=fp,
     )
 
