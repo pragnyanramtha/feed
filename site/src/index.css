@@ -1,0 +1,200 @@
+@import "tailwindcss";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/500-italic.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/caveat/500.css";
+@import "@fontsource/caveat/600.css";
+@import "lenis/dist/lenis.css";
+
+@theme {
+  --color-*: initial;
+  --color-cream: #f8f5ef;
+  --color-white: #ffffff;
+  --color-sage: #d9e3d5;
+  --color-lily-green: #8fa58b;
+  --color-dusty-pink: #d8b7c4;
+  --color-deep-brown: #332d2f;
+  --color-night: #14201a;
+
+  --font-display: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+  --font-accent: "Caveat", "Segoe Script", cursive;
+
+  --shadow-soft: 0 24px 60px -28px rgb(51 45 47 / 0.22);
+  --shadow-lift: 0 34px 70px -32px rgb(51 45 47 / 0.3);
+
+  --tracking-kicker: 0.22em;
+
+  --text-hero: clamp(3.4rem, 13vw, 10.5rem);
+  --text-hero--line-height: 0.86;
+  --text-hero--letter-spacing: -0.035em;
+  --text-section: clamp(2.35rem, 6.2vw, 5.4rem);
+  --text-section--line-height: 0.96;
+  --text-section--letter-spacing: -0.03em;
+  --text-finale: clamp(3.6rem, 14vw, 12.5rem);
+  --text-finale--line-height: 0.9;
+  --text-finale--letter-spacing: -0.035em;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: #f8f5ef;
+  color: #332d2f;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: #d8b7c4;
+  color: #14201a;
+}
+
+:focus-visible {
+  outline: 2px solid #8fa58b;
+  outline-offset: 3px;
+}
+
+img {
+  max-width: 100%;
+}
+
+@media (pointer: coarse) {
+  .cursor-glow {
+    display: none !important;
+  }
+}
+
+@media (pointer: fine) {
+  html.custom-cursor,
+  html.custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal-field,
+  .particle-field {
+    display: none !important;
+  }
+
+  .draw-path {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  .cinematic-frame {
+    clip-path: none !important;
+  }
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.memory-item--landscape {
+  grid-column: span 2;
+}
+
+@media (min-width: 768px) {
+  .memory-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-rows: 78px;
+    gap: 1.15rem;
+  }
+
+  .memory-item {
+    grid-column: var(--col) / span var(--span);
+    grid-row: var(--row) / span var(--rows);
+  }
+
+  .memory-item--landscape {
+    grid-column: var(--col) / span var(--span);
+  }
+}
+
+.h-memories {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .h-memories {
+    height: 100svh;
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .petal-field > :nth-child(n + 6),
+  .particle-field > :nth-child(n + 10) {
+    display: none;
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 8px, 0) rotate(var(--spin, -8deg));
+  }
+  50% {
+    transform: translate3d(14px, -28px, 0) rotate(calc(var(--spin, -8deg) + 16deg));
+  }
+  100% {
+    transform: translate3d(-10px, -64px, 0) rotate(var(--spin, -8deg));
+  }
+}
+
+.petal {
+  animation: drift var(--dur, 11s) ease-in-out infinite alternate;
+}
+
+@keyframes rise {
+  0% {
+    transform: translate3d(0, 8px, 0);
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(0, -24px, 0);
+    opacity: 0.3;
+  }
+}
+
+.particle {
+  animation: rise var(--dur, 7s) ease-in-out infinite;
+}
+
+@keyframes draw-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.draw-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-stroke 1.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.caption-shadow {
+  text-shadow: 0 12px 40px rgb(20 32 26 / 0.55);
+}
